@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Portfolio — Class Project</title>
+  <meta name="description" content="Generative AI class portfolio: projects, prompts, and learnings." />
+  <!-- 폰트: 시스템 폰트 우선, 가능하면 Montserrat / Pretendard -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --navy:#0B1F3A; --gold:#C8A94B; --bg:#F7F7F8; --text:#1A1D1F; --muted:#6B7280; --card:#ffffff; --line:#E5E7EB;
+    }
+    html[data-theme="dark"]{--bg:#0E1116; --text:#F3F4F6; --card:#121722; --line:#202634; --muted:#9AA1AE;}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 -apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard",Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    a{color:inherit;text-decoration:none}
+    .container{max-width:1100px;margin:0 auto;padding:0 20px}
+    header{position:sticky;top:0;background:rgba(255,255,255,.75);backdrop-filter:saturate(180%) blur(12px);border-bottom:1px solid var(--line);z-index:10}
+    html[data-theme="dark"] header{background:rgba(14,17,22,.65)}
+    .nav{display:flex;align-items:center;gap:16px;justify-content:space-between;height:64px}
+    .brand{display:flex;align-items:center;gap:10px;font-family:Montserrat,system-ui,sans-serif}
+    .logo{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--navy),#1d3d6b);position:relative}
+    .logo:after{content:"";position:absolute;inset:6px;border-radius:4px;border:2px solid var(--gold)}
+    .nav a{padding:8px 10px;border-radius:8px}
+    .nav a:hover{background:var(--line)}
+    html[data-theme="dark"] .nav a:hover{background:#1b2230}
+    .actions{display:flex;gap:8px}
+    .btn{border:1px solid var(--line);background:var(--card);color:var(--text);padding:8px 12px;border-radius:10px;cursor:pointer}
+    .btn:hover{filter:brightness(0.98)}
+    .btn.gold{background:var(--gold);border-color:#b08d36;color:#111}
+    .hero{padding:72px 0 40px;border-bottom:1px solid var(--line)}
+    .hero h1{font-family:Montserrat,system-ui,sans-serif;font-size:40px;line-height:1.15;margin:0 0 10px;color:var(--navy)}
+    html[data-theme="dark"] .hero h1{color:#d7e3ff}
+    .hero p{max-width:700px;color:var(--muted);margin:0 0 20px}
+    .chips{display:flex;flex-wrap:wrap;gap:8px}
+    .chip{padding:6px 10px;border:1px solid var(--line);border-radius:999px;background:var(--card);cursor:pointer;font-size:14px}
+    .chip.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+    section{padding:32px 0}
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+    @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:640px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
+    .thumb{height:170px;background:linear-gradient(135deg,#0b1f3a 0%,#1f3c6f 60%,#c8a94b 120%);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700}
+    .card-body{padding:14px}
+    .card h3{margin:0 0 6px;font-size:18px}
+    .meta{color:var(--muted);font-size:13px;margin-bottom:8px}
+    .tag{display:inline-block;font-size:12px;padding:3px 8px;border-radius:999px;border:1px solid var(--line);margin-right:6px;margin-bottom:6px}
+    .searchbar{display:flex;gap:8px;margin:14px 0}
+    .searchbar input{flex:1;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--text)}
+    .footer{border-top:1px solid var(--line);padding:28px 0;color:var(--muted);font-size:14px}
+    /* Modal */
+    dialog{border:none;border-radius:16px;padding:0;max-width:820px;width:92vw;background:var(--card);color:var(--text);box-shadow:0 20px 60px rgba(0,0,0,.25)}
+    .modal-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+    .modal-body{padding:16px}
+    .code{background:#0f172a;color:#d1e5ff;border-radius:12px;padding:12px;overflow:auto}
+    .pill{display:inline-block;background:#eef2ff;color:#273e6a;padding:2px 8px;border-radius:999px;font-size:12px;margin-right:6px}
+    html[data-theme="dark"] .pill{background:#1a2336;color:#cfe0ff}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand"><div class="logo" aria-hidden="true"></div><strong>AI Portfolio</strong></div>
+      <nav class="links" aria-label="Global">
+        <a href="#projects" data-i18n="nav.projects">Projects</a>
+        <a href="#about" data-i18n="nav.about">About</a>
+        <a href="#contact" data-i18n="nav.contact">Contact</a>
+      </nav>
+      <div class="actions">
+        <button class="btn" id="langBtn" aria-label="Toggle language">KR/EN</button>
+        <button class="btn" id="themeBtn" aria-label="Toggle theme">Dark</button>
+        <a class="btn gold" href="#projects" data-i18n="cta.view">View Work</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero container" id="home">
+      <h1 data-i18n="hero.title">Generative AI Class Portfolio</h1>
+      <p data-i18n="hero.subtitle">Evidence-based workflows and practical use-cases for Innovation / OpEx / Design Thinking. This site aggregates prompts, outputs, and lessons learned during the course.</p>
+      <div class="chips" aria-label="Key tags">
+        <span class="pill">#Video</span>
+        <span class="pill">#Prompt</span>
+        <span class="pill">#DesignThinking</span>
+        <span class="pill">#OpsEx</span>
+      </div>
+    </section>
+
+    <section class="container" id="projects">
+      <h2 style="margin:0 0 8px">Projects</h2>
+      <div class="meta" data-i18n="projects.desc">Filter and open a project to see objectives, workflow, outputs, and key takeaways.</div>
+      <div class="searchbar">
+        <input id="search" type="search" placeholder="Search projects… (tag, title)" aria-label="Search projects" />
+        <div class="chips" id="tagChips" aria-label="Tags">
+          <button class="chip active" data-tag="all">All</button>
+          <button class="chip" data-tag="video">Video</button>
+          <button class="chip" data-tag="prompt">Prompt</button>
+          <button class="chip" data-tag="design">DesignThinking</button>
+          <button class="chip" data-tag="opsex">OpsEx</button>
+        </div>
+      </div>
+
+      <div class="grid" id="projectGrid">
+        <!-- Card 1: JD POWER Intro -->
+        <article class="card" data-tags="video prompt jdpower intro">
+          <div class="thumb" aria-hidden="true">JD POWER — Intro</div>
+          <div class="card-body">
+            <h3>JD POWER Award — Cinematic Intro</h3>
+            <div class="meta">Runway/Sora · 8–12s · Orchestral Hybrid</div>
+            <div>
+              <span class="tag">Video</span>
+              <span class="tag">Prompt</span>
+            </div>
+            <div style="margin-top:10px">
+              <button class="btn" data-open="modal-jdpower">Open</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 2: CEO Avatar (Cartoon) -->
+        <article class="card" data-tags="video avatar cartoon speech">
+          <div class="thumb" aria-hidden="true">CEO Avatar — Cartoon</div>
+          <div class="card-body">
+            <h3>Cartoon CEO — Opening Speech</h3>
+            <div class="meta">2D Webtoon Style · 10–15s</div>
+            <div>
+              <span class="tag">Video</span>
+              <span class="tag">Design</span>
+            </div>
+            <div style="margin-top:10px">
+              <button class="btn" data-open="modal-ceo">Open</button>
+            </div>
+          </div>
+        </article>
+
+        <!-- Card 3: Music Prompt -->
+        <article class="card" data-tags="prompt music cinematic">
+          <div class="thumb" aria-hidden="true">Music — Accents</div>
+          <div class="card-body">
+            <h3>Music Prompt — Letter Accents</h3>
+            <div class="meta">Suno/Udio · 60–90s · 110BPM</div>
+            <div>
+              <span class="tag">Prompt</span>
+              <span class="tag">Audio</span>
+            </div>
+            <div style="margin-top:10px">
+              <button class="btn" data-open="modal-music">Open</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="container" id="about">
+      <h2>About</h2>
+      <p class="meta">Innovation & OpEx 팀 소속. 생성형 AI를 실무 커뮤니케이션, 워크숍, 영상/디자인 제작에 적용하는 실험 기록.</p>
+      <ul>
+        <li>중점: JD POWER 수상 커뮤니케이션, 인트로 영상, 캐리커처/아바타 기반 축사.</li>
+        <li>툴: Runway/Sora(영상), Suno/Udio(음악), Firefly/Illustrator(이미지), GitHub Pages(배포).</li>
+        <li>접근성: 대비/키보드 포커스/대체텍스트 적용.</li>
+      </ul>
+    </section>
+
+    <section class="container" id="contact">
+      <h2>Contact</h2>
+      <p class="meta">수업용 포트폴리오. 개인 상업 사이트 아님.</p>
+      <p><a href="mailto:example@company.com" class="btn">Email</a></p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">© 2025 Class Portfolio · Deployed on GitHub Pages</div>
+  </footer>
+
+  <!-- Project Modals -->
+  <dialog id="modal-jdpower">
+    <div class="modal-head">
+      <strong>JD POWER Award — Cinematic Intro</strong>
+      <button class="btn" data-close>Close</button>
+    </div>
+    <div class="modal-body">
+      <p class="meta">목표: 수상 공신력·권위를 강조하는 8–12초 인트로.</p>
+      <div style="aspect-ratio:16/9;background:#0b1220;border:1px solid var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;color:#8fb0ff;margin-bottom:12px">
+        (영상 임베드 자리 — YouTube/Vimeo iframe)
+      </div>
+      <h4>Prompt</h4>
+      <pre class="code" id="code-jd"><code>Create a cinematic intro video emphasizing the prestige and authority of the JD Power Award.
+Open with a dark elegant background and floating golden particles.
+Reveal 3D metallic letters "JD POWER" one-by-one (J→D→P→O→W→E→R), each with a dramatic light burst and impact.
+At full reveal, sweep a golden shine across the letters to symbolize excellence and credibility.
+Style: cinematic, grand, premium. Mood: inspiring, authoritative, celebratory.
+Duration: 8–12s. Colors: black / deep blue / gold. Avoid playful styles.</code></pre>
+      <button class="btn" data-copy="#code-jd">Copy Prompt</button>
+    </div>
+  </dialog>
+
+  <dialog id="modal-ceo">
+    <div class="modal-head">
+      <strong>Cartoon CEO — Opening Speech</strong>
+      <button class="btn" data-close>Close</button>
+    </div>
+    <div class="modal-body">
+      <p class="meta">실사 재현 없이, 웹툰/카툰풍 CEO 아바타가 축사를 전하는 10–15초 영상.</p>
+      <h4>Prompt</h4>
+      <pre class="code" id="code-ceo"><code>Create a short 2D animated video in a clear cartoon style.
+A CEO-like character, colorful and stylized, stands on a stage and delivers a congratulatory speech for an AI innovation event.
+Bright animated conference hall background with banners “AI Innovation Celebration”.
+Bold outlines, simplified details, vibrant colors. Expressive gestures and friendly tone.
+Avoid photo-realism. Duration: 10–15s. Keywords: cartoon, anime-inspired, webtoon, professional.</code></pre>
+      <button class="btn" data-copy="#code-ceo">Copy Prompt</button>
+    </div>
+  </dialog>
+
+  <dialog id="modal-music">
+    <div class="modal-head">
+      <strong>Music Prompt — Letter Accents</strong>
+      <button class="btn" data-close>Close</button>
+    </div>
+    <div class="modal-body">
+      <p class="meta">세련된 시네마틱 음악. 각 문자 발화 시 악센트.</p>
+      <pre class="code" id="code-music"><code>Create a modern, cinematic, and sophisticated background track to celebrate an award achievement.
+Use orchestral strings, piano, and subtle electronic layers.
+Each time a key letter (J, D, P, O, W, E, R) is spoken, emphasize with a sharp accent (short orchestral hit, deep drum impact, subtle electronic swell).
+Avoid cheesy/folk/dance or retro-comedic melodies.
+Mood: premium, refined, powerful. Tempo: ~110 BPM. Duration: 60–90s.</code></pre>
+      <button class="btn" data-copy="#code-music">Copy Prompt</button>
+    </div>
+  </dialog>
+
+  <script>
+    // Theme toggle
+    const themeBtn=document.getElementById('themeBtn');
+    themeBtn.addEventListener('click',()=>{
+      const html=document.documentElement;html.dataset.theme = html.dataset.theme==='dark'?'light':'dark';
+      themeBtn.textContent = html.dataset.theme==='dark'? 'Light':'Dark';
+    });
+
+    // Language minimal toggle (KR/EN) — 핵심 문구만
+    const i18n={
+      en:{'nav.projects':'Projects','nav.about':'About','nav.contact':'Contact','cta.view':'View Work','hero.title':'Generative AI Class Portfolio','hero.subtitle':'Evidence-based workflows and practical use-cases for Innovation / OpEx / Design Thinking. This site aggregates prompts, outputs, and lessons learned during the course.','projects.desc':'Filter and open a project to see objectives, workflow, outputs, and key takeaways.'},
+      ko:{'nav.projects':'프로젝트','nav.about':'소개','nav.contact':'연락','cta.view':'작업 보기','hero.title':'생성형 AI 수업 포트폴리오','hero.subtitle':'Innovation / OpEx / Design Thinking에 적용한 워크플로와 사례를 기록. 수업 중 생성한 프롬프트, 산출물, 배운 점을 모았다.','projects.desc':'필터/검색 후 프로젝트를 열어 목표, 과정, 산출물, 교훈을 확인.'}
+    };
+    const langBtn=document.getElementById('langBtn');
+    let lang='en';
+    function applyLang(){
+      document.querySelectorAll('[data-i18n]').forEach(el=>{
+        const key=el.getAttribute('data-i18n');
+        const val=i18n[lang][key]; if(val) el.textContent=val;
+      });
+      langBtn.textContent = lang==='en'? 'KR':'EN';
+    }
+    langBtn.addEventListener('click',()=>{lang= lang==='en'?'ko':'en';applyLang();});
+    applyLang();
+
+    // Modal open/close
+    document.querySelectorAll('[data-open]').forEach(btn=>{
+      btn.addEventListener('click',()=>{document.getElementById(btn.dataset.open).showModal();});
+    });
+    document.querySelectorAll('[data-close]').forEach(btn=>{
+      btn.addEventListener('click',()=>{btn.closest('dialog').close();});
+    });
+
+    // Copy buttons
+    document.querySelectorAll('[data-copy]').forEach(btn=>{
+      btn.addEventListener('click',async()=>{
+        const sel=btn.getAttribute('data-copy');
+        const code=document.querySelector(sel)?.innerText||'';
+        try{await navigator.clipboard.writeText(code);btn.textContent='Copied';setTimeout(()=>btn.textContent='Copy Prompt',1200);}catch(e){console.warn(e)}
+      });
+    });
+
+    // Search & Tag filter
+    const grid=document.getElementById('projectGrid');
+    const cards=[...grid.querySelectorAll('.card')];
+    const search=document.getElementById('search');
+    let activeTag='all';
+    document.getElementById('tagChips').addEventListener('click',(e)=>{
+      if(!e.target.classList.contains('chip')) return;
+      document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
+      e.target.classList.add('active');
+      activeTag=e.target.dataset.tag;filter();
+    });
+    search.addEventListener('input',filter);
+    function filter(){
+      const q=search.value.trim().toLowerCase();
+      cards.forEach(card=>{
+        const tags=(card.dataset.tags||'').toLowerCase();
+        const text=card.innerText.toLowerCase();
+        const tagOk=(activeTag==='all')||tags.includes(activeTag);
+        const qOk= q==='' || text.includes(q);
+        card.style.display = (tagOk && qOk)?'flex':'none';
+      });
+    }
+  </script>
+</body>
+</html>
